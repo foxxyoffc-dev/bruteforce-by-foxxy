@@ -83,7 +83,6 @@ h1 {
     background-clip: text;
 }
 
-/* Tabs */
 .tabs {
     display: flex;
     gap: 10px;
@@ -122,7 +121,6 @@ h1 {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Input Section */
 .input-section {
     background: var(--bg-card);
     border-radius: 20px;
@@ -263,4 +261,18 @@ h1 {
     h1 { font-size: 32px; }
     .tabs { flex-direction: column; }
     .result-details { grid-template-columns: 1fr; }
+}
+
+.strength-indicator {
+    margin-top: 10px;
+    font-size: 12px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.keyword-progress {
+    font-size: 12px;
+    max-height: 150px;
+    overflow-y: auto;
 }
