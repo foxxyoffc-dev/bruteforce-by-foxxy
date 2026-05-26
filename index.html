@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Password Security Suite | Foxxy Code</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,39 +12,37 @@
 </head>
 <body>
     <div class="container">
-        <!-- Dark Mode Toggle -->
         <div class="theme-toggle">
             <button id="themeToggle" class="theme-btn">🌙 Dark Mode</button>
         </div>
 
         <div class="header">
-            <div class="badge">⚡ COMPLETE SECURITY TOOLKIT</div>
+            <div class="badge">⚡ FOXXY PASSWORDS TOOLKIT</div>
             <h1>Password <span class="gradient-text">Security</span> Suite</h1>
-            <p>Test, Generate, Crack, and Analyze passwords | Professional Cyber Security Tool</p>
+            <p>Test, Generate, Crack, and Analyze passwords</p>
         </div>
 
-        <!-- Tab Navigation -->
         <div class="tabs">
-            <button class="tab-btn active" data-tab="cracker">🔓 Password Cracker</button>
-            <button class="tab-btn" data-tab="generator">🎲 Password Generator</button>
-            <button class="tab-btn" data-tab="hash">🔐 Hash Analyzer</button>
-            <button class="tab-btn" data-tab="brute">💣 Brute Force Sim</button>
+            <button class="tab-btn active" data-tab="cracker">🔓 Cracker</button>
+            <button class="tab-btn" data-tab="generator">🎲 Generator</button>
+            <button class="tab-btn" data-tab="hash">🔐 Hash</button>
+            <button class="tab-btn" data-tab="brute">💣 Brute</button>
         </div>
 
         <!-- TAB 1: PASSWORD CRACKER -->
         <div id="tab-cracker" class="tab-content active">
             <div class="input-section">
                 <div class="password-field">
-                    <input type="password" id="passwordInput" placeholder="Masukkan password yang mau di-test...">
+                    <input type="password" id="passwordInput" placeholder="Masukkan password...">
                     <button id="toggleVisibility" class="toggle-btn">👁️</button>
                 </div>
                 <div class="mode-selector">
-                    <label><input type="radio" name="crackMode" value="dictionary" checked> Dictionary Attack</label>
-                    <label><input type="radio" name="crackMode" value="hash"> Hash Matching (MD5/SHA1)</label>
+                    <label><input type="radio" name="crackMode" value="dictionary" checked> Dictionary</label>
+                    <label><input type="radio" name="crackMode" value="hash"> Hash (MD5/SHA1)</label>
                 </div>
                 <button id="crackBtn" class="crack-btn">
-                    <span class="btn-text">🚀 CRACK PASSWORD</span>
-                    <span class="btn-loading" style="display:none;">⏳ MENCARI...</span>
+                    <span class="btn-text">🚀 CRACK</span>
+                    <span class="btn-loading" style="display:none;">⏳...</span>
                 </button>
             </div>
 
@@ -52,72 +50,50 @@
                 <div class="result-card">
                     <div class="result-header">
                         <span class="result-icon" id="resultIcon">🔒</span>
-                        <h3 id="resultTitle">Result Title</h3>
+                        <h3 id="resultTitle">Result</h3>
                     </div>
                     <div class="result-details">
-                        <div class="detail-item">
-                            <span class="detail-label">⏱️ Waktu Cracking:</span>
-                            <span class="detail-value" id="crackTime">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">📊 Jumlah Percobaan:</span>
-                            <span class="detail-value" id="attempts">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">💪 Kekuatan Password:</span>
-                            <span class="detail-value" id="strength">-</span>
-                        </div>
+                        <div class="detail-item"><span>⏱️ Waktu:</span><span id="crackTime">-</span></div>
+                        <div class="detail-item"><span>📊 Percobaan:</span><span id="attempts">-</span></div>
+                        <div class="detail-item"><span>💪 Kekuatan:</span><span id="strength">-</span></div>
                     </div>
                     <div id="suggestions" class="suggestions"></div>
                 </div>
             </div>
 
             <div class="stats-section">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalPasswords">0</div>
-                    <div class="stat-label">Total Password Database</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="worstPassword">-</div>
-                    <div class="stat-label">Password Terlemah (Top 1)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="avgTime">-</div>
-                    <div class="stat-label">Rata-rata Waktu Crack</div>
-                </div>
+                <div class="stat-card"><div class="stat-number" id="totalPasswords">0</div><div class="stat-label">Total Database</div></div>
+                <div class="stat-card"><div class="stat-number" id="worstPassword">-</div><div class="stat-label">Terlemah</div></div>
+                <div class="stat-card"><div class="stat-number" id="avgTime">-</div><div class="stat-label">Rata-rata</div></div>
             </div>
         </div>
 
         <!-- TAB 2: PASSWORD GENERATOR -->
         <div id="tab-generator" class="tab-content">
             <div class="input-section">
-                <div class="generator-controls">
-                    <div class="control-group">
-                        <label>Panjang Password:</label>
-                        <input type="number" id="passLength" min="4" max="64" value="16">
-                    </div>
-                    <div class="control-group">
-                        <label><input type="checkbox" id="genUpper" checked> Huruf Besar (A-Z)</label>
-                        <label><input type="checkbox" id="genLower" checked> Huruf Kecil (a-z)</label>
-                        <label><input type="checkbox" id="genNumbers" checked> Angka (0-9)</label>
-                        <label><input type="checkbox" id="genSymbols" checked> Simbol (!@#$%)</label>
-                    </div>
-                    <button id="generateBtn" class="crack-btn">🎲 GENERATE PASSWORD</button>
-                    <div class="generated-password">
-                        <input type="text" id="generatedPassword" readonly>
-                        <button id="copyPasswordBtn" class="small-btn">📋 Copy</button>
-                    </div>
-                    <button id="exportPasswordsBtn" class="secondary-btn">💾 Export 100 Passwords (CSV)</button>
+                <div class="control-group">
+                    <label>Panjang:</label>
+                    <input type="number" id="passLength" min="4" max="64" value="16">
                 </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="genUpper" checked> A-Z</label>
+                    <label><input type="checkbox" id="genLower" checked> a-z</label>
+                    <label><input type="checkbox" id="genNumbers" checked> 0-9</label>
+                    <label><input type="checkbox" id="genSymbols" checked> !@#$%</label>
+                </div>
+                <button id="generateBtn" class="crack-btn">🎲 GENERATE</button>
+                <div class="generated-password">
+                    <input type="text" id="generatedPassword" readonly>
+                    <button id="copyPasswordBtn" class="small-btn">Copy</button>
+                </div>
+                <button id="exportPasswordsBtn" class="secondary-btn">💾 Export 100 Password</button>
             </div>
         </div>
 
         <!-- TAB 3: HASH ANALYZER -->
         <div id="tab-hash" class="tab-content">
             <div class="input-section">
-                <div class="password-field">
-                    <input type="text" id="hashInput" placeholder="Masukkan hash MD5 atau SHA1...">
-                </div>
+                <input type="text" id="hashInput" placeholder="Masukkan hash MD5 atau SHA1..." class="full-width">
                 <select id="hashType" class="hash-select">
                     <option value="md5">MD5 (32 karakter)</option>
                     <option value="sha1">SHA1 (40 karakter)</option>
@@ -130,49 +106,46 @@
         <!-- TAB 4: BRUTE FORCE SIMULATOR -->
         <div id="tab-brute" class="tab-content">
             <div class="input-section">
-                <div class="password-field">
-                    <input type="password" id="brutePassword" placeholder="Password yang mau di-simulasi...">
-                </div>
+                <input type="password" id="brutePassword" placeholder="Password target..." class="full-width">
                 
                 <!-- KEYWORD SECTION -->
-                <div class="keyword-section" style="margin: 15px 0; padding: 15px; background: rgba(0,255,0,0.05); border-radius: 12px;">
-                    <label style="font-weight: bold; color: var(--accent);">🔑 KATA KUNCI (OPSIONAL)</label>
-                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">Isi 3 kata kunci, sistem akan generate kombinasi dari kata-kata ini + angka + simbol</p>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                        <input type="text" id="keyword1" placeholder="Kata kunci 1" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent);">
-                        <input type="text" id="keyword2" placeholder="Kata kunci 2" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent);">
-                        <input type="text" id="keyword3" placeholder="Kata kunci 3" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent);">
+                <div class="keyword-section">
+                    <div class="keyword-header">🔑 KATA KUNCI (akan dikombinasikan dengan DATABASE)</div>
+                    <div class="keyword-grid">
+                        <input type="text" id="keyword1" placeholder="Kata kunci 1">
+                        <input type="text" id="keyword2" placeholder="Kata kunci 2">
+                        <input type="text" id="keyword3" placeholder="Kata kunci 3">
                     </div>
-                    <div class="control-group" style="margin-top: 10px;">
-                        <label><input type="checkbox" id="useNumbersKeyword" checked> Tambahkan Angka (0-999)</label>
-                        <label><input type="checkbox" id="useSymbolsKeyword" checked> Tambahkan Simbol (!@#$)</label>
-                        <label><input type="checkbox" id="useCaseVariation" checked> Variasi Huruf (Besar/Kecil)</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="useNumbersKeyword" checked> + Angka (0-999)</label>
+                        <label><input type="checkbox" id="useSymbolsKeyword" checked> + Simbol (!@#$)</label>
+                        <label><input type="checkbox" id="useCaseVariation" checked> Variasi Huruf</label>
+                        <label><input type="checkbox" id="useDatabaseCombo" checked> + Kombinasi dengan Database Password</label>
                     </div>
+                    <div class="info-text">💡 Centang "Kombinasi Database" = keyword dicoba bersama 2700+ password umum</div>
                 </div>
                 
                 <div class="control-group">
                     <label>Mode Serangan:</label>
                     <select id="bruteMaxLength">
-                        <option value="3">Brute Force: 3 karakter (cepat)</option>
-                        <option value="4">Brute Force: 4 karakter</option>
-                        <option value="5">Brute Force: 5 karakter</option>
-                        <option value="6">Brute Force: 6 karakter</option>
-                        <option value="7">Brute Force: 7 karakter (lama)</option>
-                        <option value="8">Brute Force: 8 karakter (sangat lama)</option>
-                        <option value="keyword">Mode: Kombinasi Keyword (dari kata kunci di atas)</option>
+                        <option value="3">3 karakter (cepat)</option>
+                        <option value="4">4 karakter</option>
+                        <option value="5">5 karakter</option>
+                        <option value="6">6 karakter</option>
+                        <option value="7">7 karakter (lama)</option>
+                        <option value="8">8 karakter (sangat lama)</option>
+                        <option value="keyword">Keyword + Database Combo (dari kata kunci di atas)</option>
                     </select>
                 </div>
                 
-                <div style="display: flex; gap: 10px;">
-                    <button id="bruteBtn" class="crack-btn" style="flex: 3;">⚡ SIMULASI BRUTE FORCE</button>
-                    <button id="stopBruteBtn" class="secondary-btn" style="flex: 1; background: #ff4444; color: white; border: none;">🛑 STOP</button>
+                <div class="button-group">
+                    <button id="bruteBtn" class="crack-btn">⚡ SIMULASI</button>
+                    <button id="stopBruteBtn" class="stop-btn">🛑 STOP</button>
                 </div>
                 
                 <div id="bruteResult" class="result-section" style="display:none;"></div>
-                <div id="bruteProgress" class="progress-bar" style="display:none;">
-                    <div class="progress-fill"></div>
-                </div>
-                <div id="keywordProgress" class="keyword-progress" style="display:none; margin-top: 10px; font-size: 12px;"></div>
+                <div id="bruteProgress" class="progress-bar" style="display:none;"><div class="progress-fill"></div></div>
+                <div id="keywordProgress" class="keyword-progress" style="display:none;"></div>
             </div>
         </div>
 
@@ -180,14 +153,12 @@
             <details>
                 <summary>📖 Cara Kerja & Disclaimer</summary>
                 <div class="info-content">
-                    <p><strong>🔐 Complete Security Toolkit:</strong> Simulasi dictionary attack, hash cracking, password generator, dan brute force simulation.</p>
-                    <p><strong>⚠️ Disclaimer:</strong> Tools untuk EDUKASI keamanan siber. Jangan gunakan untuk aktivitas ilegal.</p>
-                    <p><strong>⚡ Auto Stop:</strong> Jika total kombinasi melebihi 200 juta, simulasi akan otomatis berhenti dan memberitahu bahwa password 100% aman.</p>
+                    <p><strong>Keyword + Database Combo:</strong> Kata kunci akan dikombinasikan dengan database password (2700+ kata umum) + angka + simbol. Contoh: keyword "babi" + database "123456" → "babi123456", "123456babi", dll.</p>
+                    <p><strong>Auto Stop:</strong> Jika total kombinasi > 200 juta, simulasi berhenti otomatis.</p>
                 </div>
             </details>
         </div>
     </div>
-
     <script type="module" src="src/main.js"></script>
 </body>
 </html>
