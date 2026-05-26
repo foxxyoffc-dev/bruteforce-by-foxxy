@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Password Cracker Suite | Foxxy Code</title>
+    <title>Password Security Suite | Foxxy Code</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/style.css">
-    <!-- CryptoJS buat hashing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 </head>
 <body>
@@ -21,7 +20,7 @@
         <div class="header">
             <div class="badge">⚡ COMPLETE SECURITY TOOLKIT</div>
             <h1>Password <span class="gradient-text">Security</span> Suite</h1>
-            <p>Test, Generate, and Analyze password strength | Professional Cyber Security Tool</p>
+            <p>Test, Generate, Crack, and Analyze passwords | Professional Cyber Security Tool</p>
         </div>
 
         <!-- Tab Navigation -->
@@ -32,7 +31,7 @@
             <button class="tab-btn" data-tab="brute">💣 Brute Force Sim</button>
         </div>
 
-        <!-- TAB 1: PASSWORD CRACKER (Original) -->
+        <!-- TAB 1: PASSWORD CRACKER -->
         <div id="tab-cracker" class="tab-content active">
             <div class="input-section">
                 <div class="password-field">
@@ -98,10 +97,10 @@
                         <input type="number" id="passLength" min="4" max="64" value="16">
                     </div>
                     <div class="control-group">
-                        <label><input type="checkbox" id="useUpper" checked> Huruf Besar (A-Z)</label>
-                        <label><input type="checkbox" id="useLower" checked> Huruf Kecil (a-z)</label>
-                        <label><input type="checkbox" id="useNumbers" checked> Angka (0-9)</label>
-                        <label><input type="checkbox" id="useSymbols" checked> Simbol (!@#$%)</label>
+                        <label><input type="checkbox" id="genUpper" checked> Huruf Besar (A-Z)</label>
+                        <label><input type="checkbox" id="genLower" checked> Huruf Kecil (a-z)</label>
+                        <label><input type="checkbox" id="genNumbers" checked> Angka (0-9)</label>
+                        <label><input type="checkbox" id="genSymbols" checked> Simbol (!@#$%)</label>
                     </div>
                     <button id="generateBtn" class="crack-btn">🎲 GENERATE PASSWORD</button>
                     <div class="generated-password">
@@ -134,20 +133,46 @@
                 <div class="password-field">
                     <input type="password" id="brutePassword" placeholder="Password yang mau di-simulasi...">
                 </div>
+                
+                <!-- KEYWORD SECTION -->
+                <div class="keyword-section" style="margin: 15px 0; padding: 15px; background: rgba(0,255,0,0.05); border-radius: 12px;">
+                    <label style="font-weight: bold; color: var(--accent);">🔑 KATA KUNCI (OPSIONAL)</label>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">Isi 3 kata kunci, sistem akan generate kombinasi dari kata-kata ini + angka + simbol</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                        <input type="text" id="keyword1" placeholder="Kata kunci 1" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent);">
+                        <input type="text" id="keyword2" placeholder="Kata kunci 2" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent);">
+                        <input type="text" id="keyword3" placeholder="Kata kunci 3" style="padding: 10px; background: var(--input-bg); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent);">
+                    </div>
+                    <div class="control-group" style="margin-top: 10px;">
+                        <label><input type="checkbox" id="useNumbersKeyword" checked> Tambahkan Angka (0-999)</label>
+                        <label><input type="checkbox" id="useSymbolsKeyword" checked> Tambahkan Simbol (!@#$)</label>
+                        <label><input type="checkbox" id="useCaseVariation" checked> Variasi Huruf (Besar/Kecil)</label>
+                    </div>
+                </div>
+                
                 <div class="control-group">
-                    <label>Max Panjang Karakter:</label>
+                    <label>Mode Serangan:</label>
                     <select id="bruteMaxLength">
-                        <option value="3">3 karakter (cepat)</option>
-                        <option value="4">4 karakter</option>
-                        <option value="5">5 karakter</option>
-                        <option value="6">6 karakter (lama)</option>
+                        <option value="3">Brute Force: 3 karakter (cepat)</option>
+                        <option value="4">Brute Force: 4 karakter</option>
+                        <option value="5">Brute Force: 5 karakter</option>
+                        <option value="6">Brute Force: 6 karakter</option>
+                        <option value="7">Brute Force: 7 karakter (lama)</option>
+                        <option value="8">Brute Force: 8 karakter (sangat lama)</option>
+                        <option value="keyword">Mode: Kombinasi Keyword (dari kata kunci di atas)</option>
                     </select>
                 </div>
-                <button id="bruteBtn" class="crack-btn">⚡ SIMULASI BRUTE FORCE</button>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button id="bruteBtn" class="crack-btn" style="flex: 3;">⚡ SIMULASI BRUTE FORCE</button>
+                    <button id="stopBruteBtn" class="secondary-btn" style="flex: 1; background: #ff4444; color: white; border: none;">🛑 STOP</button>
+                </div>
+                
                 <div id="bruteResult" class="result-section" style="display:none;"></div>
                 <div id="bruteProgress" class="progress-bar" style="display:none;">
                     <div class="progress-fill"></div>
                 </div>
+                <div id="keywordProgress" class="keyword-progress" style="display:none; margin-top: 10px; font-size: 12px;"></div>
             </div>
         </div>
 
@@ -155,8 +180,9 @@
             <details>
                 <summary>📖 Cara Kerja & Disclaimer</summary>
                 <div class="info-content">
-                    <p><strong>🔐 Complete Security Toolkit:</strong> Simulasi dictionary attack, hash cracking, password generator, dan brute force simulation. Semua proses 100% client-side, password aman tidak dikirim ke server.</p>
+                    <p><strong>🔐 Complete Security Toolkit:</strong> Simulasi dictionary attack, hash cracking, password generator, dan brute force simulation.</p>
                     <p><strong>⚠️ Disclaimer:</strong> Tools untuk EDUKASI keamanan siber. Jangan gunakan untuk aktivitas ilegal.</p>
+                    <p><strong>⚡ Auto Stop:</strong> Jika total kombinasi melebihi 200 juta, simulasi akan otomatis berhenti dan memberitahu bahwa password 100% aman.</p>
                 </div>
             </details>
         </div>
