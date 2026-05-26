@@ -14,7 +14,7 @@ const avgTimeEl = document.getElementById('avgTime');
 
 async function loadDatabaseInfo() {
     try {
-        const response = await fetch('/public/api/passwords.json');
+        const response = await fetch('public/api/passwords.json');
         const passwords = await response.json();
         totalPasswordsDB = passwords.length;
         totalPasswordsEl.textContent = totalPasswordsDB.toLocaleString();
