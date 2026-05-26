@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Password Cracker Simulator | Cyber Security Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="badge">⚡ EDUCATIONAL TOOL</div>
+            <h1>Password <span class="gradient-text">Cracker</span> Simulator</h1>
+            <p>Test password strength against <strong>10,000+</strong> common passwords | Dictionary Attack Simulation</p>
+        </div>
+
+        <div class="input-section">
+            <div class="password-field">
+                <input type="password" id="passwordInput" placeholder="Masukkan password yang mau di-test...">
+                <button id="toggleVisibility" class="toggle-btn">👁️</button>
+            </div>
+            <button id="crackBtn" class="crack-btn">
+                <span class="btn-text">🚀 CRACK PASSWORD</span>
+                <span class="btn-loading" style="display:none;">⏳ MENCARI...</span>
+            </button>
+        </div>
+
+        <div id="resultSection" class="result-section" style="display:none;">
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="result-icon" id="resultIcon">🔒</span>
+                    <h3 id="resultTitle">Result Title</h3>
+                </div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">⏱️ Waktu Cracking:</span>
+                        <span class="detail-value" id="crackTime">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">📊 Jumlah Percobaan:</span>
+                        <span class="detail-value" id="attempts">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">💪 Kekuatan Password:</span>
+                        <span class="detail-value" id="strength">-</span>
+                    </div>
+                </div>
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number" id="totalPasswords">0</div>
+                <div class="stat-label">Total Password dalam Database</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="worstPassword">-</div>
+                <div class="stat-label">Password Terlemah (Top 1)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgTime">-</div>
+                <div class="stat-label">Rata-rata Waktu Crack (detik)</div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <details>
+                <summary>📖 Cara Kerja & Disclaimer (Klik buka)</summary>
+                <div class="info-content">
+                    <p><strong>🔐 Cara Kerja:</strong> Tools ini mensimulasikan dictionary attack menggunakan database 500+ password paling umum di dunia. Password lo <strong>GAK PERNAH</strong> dikirim ke server - semua proses di browser lo sendiri pake Web Worker.</p>
+                    <p><strong>⚠️ Disclaimer:</strong> Tools ini 100% client-side dan dibuat untuk <strong>EDUKASI</strong> tentang keamanan password. Jangan pake buat ngecrack password orang lain tanpa izin. Gunakan hanya untuk password lo sendiri atau lingkungan yang lo punya akses resmi.</p>
+                    <p><strong>💡 Tips Password Kuat:</strong> Minimal 12 karakter, campuran huruf besar/kecil, angka, simbol, dan hindari kata-kata umum. Jangan pake password yang sama di banyak akun!</p>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
