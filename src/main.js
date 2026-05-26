@@ -1,6 +1,8 @@
 // ==================== GLOBAL VARIABLES ====================
 let passwordDatabase = [];
 let currentTheme = 'dark';
+let bruteForceActive = false;
+const MAX_COMBINATIONS_LIMIT = 200000000; // 200 juta limit
 
 // ==================== LOAD DATABASE ====================
 async function loadDatabase() {
@@ -62,7 +64,7 @@ function setupTheme() {
     });
 }
 
-// ==================== PASSWORD CRACKER (Dictionary + Hash) ====================
+// ==================== PASSWORD CRACKER ====================
 async function crackPassword() {
     const password = document.getElementById('passwordInput').value.trim();
     const mode = document.querySelector('input[name="crackMode"]:checked').value;
@@ -152,10 +154,10 @@ function displayResult(found, foundPassword, attempts, crackTime, originalPasswo
 // ==================== PASSWORD GENERATOR ====================
 function generatePassword() {
     const length = parseInt(document.getElementById('passLength').value);
-    const useUpper = document.getElementById('useUpper').checked;
-    const useLower = document.getElementById('useLower').checked;
-    const useNumbers = document.getElementById('useNumbers').checked;
-    const useSymbols = document.getElementById('useSymbols').checked;
+    const useUpper = document.getElementById('genUpper').checked;
+    const useLower = document.getElementById('genLower').checked;
+    const useNumbers = document.getElementById('genNumbers').checked;
+    const useSymbols = document.getElementById('genSymbols').checked;
     
     let chars = '';
     if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -231,82 +233,326 @@ async function crackHash() {
     resultDiv.innerHTML = '<div class="result-card" style="border-left: 3px solid #ffa500;">❌ Hash tidak ditemukan di database!</div>';
 }
 
-// ==================== BRUTE FORCE SIMULATOR ====================
-async function simulateBruteForce() {
-    const targetPassword = document.getElementById('brutePassword').value;
-    const maxLength = parseInt(document.getElementById('bruteMaxLength').value);
-    const resultDiv = document.getElementById('bruteResult');
-    const progressDiv = document.getElementById('bruteProgress');
-    const progressFill = document.querySelector('#bruteProgress .progress-fill');
+// ==================== BRUTE FORCE SIMULATOR (DENGAN LIMIT 200 JUTA) ====================
+
+// Generate kombinasi dari kata kunci dengan estimasi jumlah
+function generateKeywordCombinations(keywords) {
+    const combinations = new Set();
+    const symbols = ['!', '@', '#', '$', '%', '&', '*', '?'];
+    const numbers = Array.from({length: 1000}, (_, i) => i.toString());
     
-    if (!targetPassword) { alert('Masukkan password target!'); return; }
-    if (targetPassword.length > maxLength) {
-        alert(`Password lebih panjang dari ${maxLength} karakter! Perpanjang max length.`);
-        return;
-    }
+    const useNumbers = document.getElementById('useNumbersKeyword').checked;
+    const useSymbols = document.getElementById('useSymbolsKeyword').checked;
+    const useCaseVar = document.getElementById('useCaseVariation').checked;
     
-    resultDiv.style.display = 'block';
-    progressDiv.style.display = 'block';
-    resultDiv.innerHTML = '<div class="result-card">⏳ Memulai brute force simulation...</div>';
+    const activeKeywords = keywords.filter(k => k.trim() !== '');
     
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    const startTime = performance.now();
-    let attempts = 0;
-    let found = false;
+    if (activeKeywords.length === 0) return { combinations: [], estimatedTotal: 0, exceeded: false };
     
-    function* generateCombinations(length, prefix = '') {
-        if (length === 0) { yield prefix; return; }
-        for (let i = 0; i < chars.length; i++) {
-            yield* generateCombinations(length - 1, prefix + chars[i]);
+    let estimatedTotal = 0;
+    
+    for (let kw of activeKeywords) {
+        const originalKw = kw;
+        
+        let keywordsToTry = [originalKw.toLowerCase(), originalKw.toUpperCase()];
+        if (useCaseVar) {
+            keywordsToTry.push(originalKw.charAt(0).toUpperCase() + originalKw.slice(1).toLowerCase());
+            let altCase = '';
+            for (let i = 0; i < originalKw.length; i++) {
+                altCase += i % 2 === 0 ? originalKw[i].toUpperCase() : originalKw[i].toLowerCase();
+            }
+            keywordsToTry.push(altCase);
+        }
+        
+        for (let kwVar of keywordsToTry) {
+            if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) {
+                return { combinations: Array.from(combinations), estimatedTotal, exceeded: true };
+            }
+            combinations.add(kwVar);
+            estimatedTotal++;
+            
+            if (useNumbers) {
+                for (let i = 0; i <= 99; i++) {
+                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
+                    combinations.add(kwVar + i);
+                    combinations.add(i + kwVar);
+                    combinations.add(kwVar + i.toString().padStart(2, '0'));
+                    estimatedTotal += 3;
+                }
+                for (let i = 100; i <= 999; i += 50) {
+                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
+                    combinations.add(kwVar + i);
+                    combinations.add(i + kwVar);
+                    estimatedTotal += 2;
+                }
+            }
+            
+            if (useSymbols) {
+                for (let sym of symbols) {
+                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
+                    combinations.add(kwVar + sym);
+                    combinations.add(sym + kwVar);
+                    combinations.add(kwVar + sym + '123');
+                    estimatedTotal += 3;
+                }
+            }
+            
+            if (useNumbers && useSymbols) {
+                for (let num of [1, 12, 123]) {
+                    for (let sym of symbols.slice(0, 4)) {
+                        if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
+                        combinations.add(kwVar + num + sym);
+                        combinations.add(kwVar + sym + num);
+                        estimatedTotal += 2;
+                    }
+                }
+            }
         }
     }
     
-    for (let len = 1; len <= maxLength; len++) {
-        const totalCombos = Math.pow(chars.length, len);
-        let comboCount = 0;
+    // Kombinasi antar keyword
+    if (activeKeywords.length >= 2 && estimatedTotal < MAX_COMBINATIONS_LIMIT) {
+        for (let kw1 of activeKeywords) {
+            for (let kw2 of activeKeywords) {
+                if (kw1 !== kw2 && estimatedTotal < MAX_COMBINATIONS_LIMIT) {
+                    combinations.add(kw1 + kw2);
+                    combinations.add(kw1 + '_' + kw2);
+                    combinations.add(kw1 + kw2 + '123');
+                    estimatedTotal += 3;
+                }
+            }
+        }
+    }
+    
+    if (activeKeywords.length >= 3 && estimatedTotal < MAX_COMBINATIONS_LIMIT) {
+        const [kw1, kw2, kw3] = activeKeywords;
+        combinations.add(kw1 + kw2 + kw3);
+        combinations.add(kw1 + '_' + kw2 + '_' + kw3);
+        estimatedTotal += 2;
+    }
+    
+    return { 
+        combinations: Array.from(combinations), 
+        estimatedTotal, 
+        exceeded: estimatedTotal >= MAX_COMBINATIONS_LIMIT 
+    };
+}
+
+// Normal brute force generator
+function* generateCombinations(length, prefix = '', chars = 'abcdefghijklmnopqrstuvwxyz0123456789') {
+    if (length === 0) { yield prefix; return; }
+    for (let i = 0; i < chars.length; i++) {
+        if (!bruteForceActive) return;
+        yield* generateCombinations(length - 1, prefix + chars[i], chars);
+    }
+}
+
+async function simulateBruteForce() {
+    const targetPassword = document.getElementById('brutePassword').value;
+    const maxLength = document.getElementById('bruteMaxLength').value;
+    const resultDiv = document.getElementById('bruteResult');
+    const progressDiv = document.getElementById('bruteProgress');
+    const progressFill = document.querySelector('#bruteProgress .progress-fill');
+    const keywordProgressDiv = document.getElementById('keywordProgress');
+    const bruteBtn = document.getElementById('bruteBtn');
+    const stopBtn = document.getElementById('stopBruteBtn');
+    
+    // Ambil keyword
+    const keyword1 = document.getElementById('keyword1').value;
+    const keyword2 = document.getElementById('keyword2').value;
+    const keyword3 = document.getElementById('keyword3').value;
+    const keywords = [keyword1, keyword2, keyword3];
+    const isKeywordMode = maxLength === 'keyword';
+    
+    if (!targetPassword) { alert('Masukkan password target!'); return; }
+    
+    // Stop previous simulation
+    if (bruteForceActive) {
+        bruteForceActive = false;
+        await sleep(500);
+    }
+    
+    // Cek limit untuk mode keyword
+    if (isKeywordMode) {
+        const activeKeywords = keywords.filter(k => k.trim() !== '');
+        if (activeKeywords.length === 0) {
+            alert('Isi minimal 1 kata kunci untuk mode Keyword Combo!');
+            return;
+        }
         
-        for (const combo of generateCombinations(len)) {
+        const { estimatedTotal, exceeded } = generateKeywordCombinations(keywords);
+        
+        if (exceeded || estimatedTotal > MAX_COMBINATIONS_LIMIT) {
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `<div class="result-card" style="border-left: 3px solid #00ff00; background: rgba(0,255,0,0.1);">
+                <strong>✅✅✅ PASSWORD ANDA 100% AMAN! ✅✅✅</strong><br><br>
+                🔒 Total kombinasi yang akan dicoba: <strong>${estimatedTotal.toLocaleString()}</strong><br>
+                📊 Melebihi batas aman: <strong>${MAX_COMBINATIONS_LIMIT.toLocaleString()} kombinasi</strong><br><br>
+                🛡️ Password Anda tidak mungkin dipecahkan dengan metode dictionary attack atau brute force sederhana!<br>
+                💪 Tetap gunakan password minimal 12 karakter dengan campuran huruf, angka, dan simbol.<br>
+                🔐 Aktifkan 2FA untuk keamanan maksimal.
+            </div>`;
+            return;
+        }
+    }
+    
+    // Mode normal brute force - hitung total kombinasi
+    if (!isKeywordMode) {
+        const maxLen = parseInt(maxLength);
+        const charsCount = 36; // a-z (26) + 0-9 (10)
+        let totalCombosAllLength = 0;
+        for (let len = 1; len <= maxLen; len++) {
+            totalCombosAllLength += Math.pow(charsCount, len);
+            if (totalCombosAllLength > MAX_COMBINATIONS_LIMIT) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<div class="result-card" style="border-left: 3px solid #00ff00; background: rgba(0,255,0,0.1);">
+                    <strong>✅✅✅ PASSWORD ANDA 100% AMAN! ✅✅✅</strong><br><br>
+                    🔒 Total kombinasi untuk ${maxLen} karakter: <strong>${totalCombosAllLength.toLocaleString()}</strong><br>
+                    📊 Melebihi batas aman: <strong>${MAX_COMBINATIONS_LIMIT.toLocaleString()} kombinasi</strong><br><br>
+                    🛡️ Brute force attack akan membutuhkan waktu bertahun-tahun untuk memecahkan password Anda!<br>
+                    💪 Password dengan panjang ${targetPassword.length} karakter sangat aman dari serangan brute force.
+                </div>`;
+                return;
+            }
+        }
+    }
+    
+    bruteForceActive = true;
+    bruteBtn.disabled = true;
+    stopBtn.disabled = false;
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<div class="result-card">⏳ Memulai simulasi... (Tekan STOP untuk berhenti)</div>';
+    
+    const startTime = performance.now();
+    let attempts = 0;
+    let found = false;
+    let foundPassword = '';
+    
+    // MODE KEYWORD COMBO
+    if (isKeywordMode) {
+        progressDiv.style.display = 'block';
+        keywordProgressDiv.style.display = 'block';
+        
+        const { combinations, estimatedTotal } = generateKeywordCombinations(keywords);
+        const totalCombos = combinations.length;
+        
+        keywordProgressDiv.innerHTML = `<div style="background: var(--bg-card); padding: 8px; border-radius: 8px;">
+            🔑 Total kombinasi: ${totalCombos.toLocaleString()} | Estimasi: ${estimatedTotal.toLocaleString()}
+        </div>`;
+        await sleep(100);
+        
+        for (let i = 0; i < totalCombos && bruteForceActive; i++) {
             attempts++;
-            comboCount++;
+            const combo = combinations[i];
             
-            if (comboCount % 10000 === 0) {
-                const percent = (comboCount / totalCombos) * 100;
+            if (i % 100 === 0) {
+                const percent = (i / totalCombos) * 100;
                 progressFill.style.width = `${percent}%`;
-                resultDiv.innerHTML = `<div class="result-card">⏳ Mencoba panjang ${len}... ${Math.round(percent)}% (${attempts.toLocaleString()} percobaan)</div>`;
+                keywordProgressDiv.innerHTML = `<div style="background: var(--bg-card); padding: 8px; border-radius: 8px;">
+                    🔑 Mencoba kombinasi... ${percent.toFixed(1)}% (${i.toLocaleString()}/${totalCombos.toLocaleString()})<br>
+                    💡 Sekarang: <span style="color: var(--accent);">${combo.substring(0, 50)}</span>
+                </div>`;
                 await sleep(0);
             }
             
             if (combo === targetPassword) {
                 found = true;
+                foundPassword = combo;
+                bruteForceActive = false;
                 break;
             }
         }
-        if (found) break;
+    } 
+    // MODE NORMAL BRUTE FORCE
+    else {
+        const maxLen = parseInt(maxLength);
+        if (targetPassword.length > maxLen) {
+            resultDiv.innerHTML = `<div class="result-card" style="border-left: 3px solid #ffa500;">
+                ⚠️ Password lebih panjang dari ${maxLen} karakter!<br>
+                Pilih mode yang lebih panjang atau gunakan mode Keyword Combo.
+            </div>`;
+            bruteForceActive = false;
+            bruteBtn.disabled = false;
+            stopBtn.disabled = true;
+            return;
+        }
+        
+        progressDiv.style.display = 'block';
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        
+        for (let len = 1; len <= maxLen && bruteForceActive; len++) {
+            const totalCombos = Math.pow(chars.length, len);
+            let comboCount = 0;
+            
+            for (const combo of generateCombinations(len, '', chars)) {
+                if (!bruteForceActive) break;
+                attempts++;
+                comboCount++;
+                
+                if (comboCount % 5000 === 0) {
+                    const percent = (comboCount / totalCombos) * 100;
+                    progressFill.style.width = `${percent}%`;
+                    resultDiv.innerHTML = `<div class="result-card">⏳ Mencoba panjang ${len}... ${Math.round(percent)}%<br>
+                    📊 ${attempts.toLocaleString()} percobaan<br>
+                    🔍 Mencoba: ${combo}</div>`;
+                    await sleep(0);
+                }
+                
+                if (combo === targetPassword) {
+                    found = true;
+                    foundPassword = combo;
+                    bruteForceActive = false;
+                    break;
+                }
+            }
+            if (found || !bruteForceActive) break;
+        }
     }
     
     const endTime = performance.now();
     const timeTaken = (endTime - startTime) / 1000;
     
-    if (found) {
+    // Tampilkan hasil
+    if (!bruteForceActive && !found) {
+        resultDiv.innerHTML = `<div class="result-card" style="border-left: 3px solid #ffa500;">
+            <strong>🛑 SIMULASI DIHENTIKAN!</strong><br>
+            Percobaan: ${attempts.toLocaleString()}<br>
+            Waktu: ${timeTaken.toFixed(2)} detik
+        </div>`;
+    } else if (found) {
         resultDiv.innerHTML = `<div class="result-card" style="border-left: 3px solid #ff4444;">
             <strong>⚠️ PASSWORD BERHASIL DI BRUTE FORCE!</strong><br>
-            Password: ${targetPassword}<br>
+            Password: <span style="color: #00ff00;">${foundPassword}</span><br>
             Waktu: ${timeTaken.toFixed(2)} detik<br>
             Percobaan: ${attempts.toLocaleString()}<br>
-            <span style="color: #ffa500;">💡 Rekomendasi: Gunakan password minimal 8 karakter dengan simbol!</span>
+            <span style="color: #ffa500;">💡 Rekomendasi: Jangan gunakan kata umum atau kombinasi yang mudah ditebak!</span>
         </div>`;
     } else {
         resultDiv.innerHTML = `<div class="result-card" style="border-left: 3px solid #00ff00;">
-            <strong>✅ Password aman dari brute force (dalam batasan ini)!</strong><br>
-            Tidak berhasil dicrack dalam ${maxLength} karakter.<br>
-            Waktu simulasi: ${timeTaken.toFixed(2)} detik
+            <strong>✅ Password aman dari serangan ini!</strong><br>
+            Tidak ditemukan dalam ${isKeywordMode ? 'kombinasi keyword' : maxLength + ' karakter brute force'}.<br>
+            Waktu: ${timeTaken.toFixed(2)} detik<br>
+            Percobaan: ${attempts.toLocaleString()}
         </div>`;
     }
     
-    setTimeout(() => { progressDiv.style.display = 'none'; }, 1000);
+    bruteForceActive = false;
+    bruteBtn.disabled = false;
+    stopBtn.disabled = true;
+    setTimeout(() => { 
+        progressDiv.style.display = 'none';
+        keywordProgressDiv.style.display = 'none';
+    }, 1000);
 }
 
-// ==================== UTILITIES ====================
+function stopBruteForce() {
+    if (bruteForceActive) {
+        bruteForceActive = false;
+        const resultDiv = document.getElementById('bruteResult');
+        resultDiv.innerHTML = '<div class="result-card" style="border-left: 3px solid #ffa500;">🛑 Menghentikan simulasi...</div>';
+    }
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -330,6 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('exportPasswordsBtn').addEventListener('click', exportPasswords);
     document.getElementById('hashCrackBtn').addEventListener('click', crackHash);
     document.getElementById('bruteBtn').addEventListener('click', simulateBruteForce);
+    document.getElementById('stopBruteBtn').addEventListener('click', stopBruteForce);
     document.getElementById('toggleVisibility').addEventListener('click', () => {
         const pwdInput = document.getElementById('passwordInput');
         const type = pwdInput.type === 'password' ? 'text' : 'password';
