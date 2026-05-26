@@ -72,22 +72,40 @@ function generateKeywordDatabaseCombinations(keywords) {
     if (activeKeywords.length === 0) return { combinations: [], estimatedTotal: 0 };
     
     let estimatedTotal = 0;
+    let shouldStop = false;
     
     for (let kw of activeKeywords) {
+        if (shouldStop) break;
+        
         let kwVariations = [kw.toLowerCase(), kw.toUpperCase()];
         if (useCaseVar) {
             kwVariations.push(kw.charAt(0).toUpperCase() + kw.slice(1).toLowerCase());
         }
         
         for (let kwVar of kwVariations) {
+            if (shouldStop) break;
+            
             // Keyword saja
             combinations.add(kwVar);
             estimatedTotal++;
             
-            // Keyword + Angka
+            // Keyword + Angka (0-99)
             if (useNumbers) {
                 for (let i = 0; i <= 99; i++) {
-                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
+                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) {
+                        shouldStop = true;
+                        break;
+                    }
+                    combinations.add(kwVar + i);
+                    combinations.add(i + kwVar);
+                    estimatedTotal += 2;
+                }
+                // Angka 100-999 (lebih sedikit)
+                for (let i = 100; i <= 999; i += 50) {
+                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) {
+                        shouldStop = true;
+                        break;
+                    }
                     combinations.add(kwVar + i);
                     combinations.add(i + kwVar);
                     estimatedTotal += 2;
@@ -97,35 +115,44 @@ function generateKeywordDatabaseCombinations(keywords) {
             // Keyword + Simbol
             if (useSymbols) {
                 for (let sym of symbols.slice(0, 4)) {
-                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
+                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) {
+                        shouldStop = true;
+                        break;
+                    }
                     combinations.add(kwVar + sym);
                     combinations.add(sym + kwVar);
                     estimatedTotal += 2;
                 }
             }
             
-            // KEYWORD + DATABASE PASSWORD (FITUR UTAMA)
+            // ============ KEYWORD + DATABASE PASSWORD (TANPA BATAS 500!) ============
             if (useDatabase && passwordDatabase.length > 0) {
-                for (let dbPass of passwordDatabase.slice(0, 500)) { // Batasi 500 biar gak overload
-                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
+                for (let dbPass of passwordDatabase) {  // <-- SEKARANG PAKE SEMUA DATABASE
+                    if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) {
+                        shouldStop = true;
+                        break;
+                    }
+                    
+                    // Keyword + Database
                     combinations.add(kwVar + dbPass);
                     combinations.add(dbPass + kwVar);
                     combinations.add(kwVar + '_' + dbPass);
                     combinations.add(dbPass + '_' + kwVar);
                     estimatedTotal += 4;
                     
-                    // Keyword + Database + Angka
-                    if (useNumbers) {
-                        for (let i = 1; i <= 99; i += 10) {
+                    // Keyword + Database + Angka (dikurangi biar cepet)
+                    if (useNumbers && estimatedTotal < MAX_COMBINATIONS_LIMIT) {
+                        for (let i of [1, 12, 123]) {
                             if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
                             combinations.add(kwVar + dbPass + i);
                             combinations.add(dbPass + kwVar + i);
-                            estimatedTotal += 2;
+                            combinations.add(kwVar + i + dbPass);
+                            estimatedTotal += 3;
                         }
                     }
                     
                     // Keyword + Database + Simbol
-                    if (useSymbols) {
+                    if (useSymbols && estimatedTotal < MAX_COMBINATIONS_LIMIT) {
                         for (let sym of symbols.slice(0, 2)) {
                             if (estimatedTotal >= MAX_COMBINATIONS_LIMIT) break;
                             combinations.add(kwVar + dbPass + sym);
@@ -133,10 +160,20 @@ function generateKeywordDatabaseCombinations(keywords) {
                             estimatedTotal += 2;
                         }
                     }
+                    
+                    // Biar gak terlalu lama, kasih delay kecil
+                    await sleep(0);
                 }
             }
         }
     }
+    
+    return { 
+        combinations: Array.from(combinations), 
+        estimatedTotal,
+        exceeded: estimatedTotal >= MAX_COMBINATIONS_LIMIT 
+    };
+}
     
     return { 
         combinations: Array.from(combinations), 
