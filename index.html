@@ -3,82 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Password Cracker Simulator | Cyber Security Tool</title>
+    <title>Password Cracker Suite | Foxxy Code</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/style.css">
+    <!-- CryptoJS buat hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 </head>
 <body>
     <div class="container">
+        <!-- Dark Mode Toggle -->
+        <div class="theme-toggle">
+            <button id="themeToggle" class="theme-btn">🌙 Dark Mode</button>
+        </div>
+
         <div class="header">
-            <div class="badge">⚡ EDUCATIONAL TOOL</div>
-            <h1>Password <span class="gradient-text">Cracker</span> Simulator</h1>
-            <p>Test password strength against <strong>10,000+</strong> common passwords | Dictionary Attack Simulation</p>
+            <div class="badge">⚡ COMPLETE SECURITY TOOLKIT</div>
+            <h1>Password <span class="gradient-text">Security</span> Suite</h1>
+            <p>Test, Generate, and Analyze password strength | Professional Cyber Security Tool</p>
         </div>
 
-        <div class="input-section">
-            <div class="password-field">
-                <input type="password" id="passwordInput" placeholder="Masukkan password yang mau di-test...">
-                <button id="toggleVisibility" class="toggle-btn">👁️</button>
-            </div>
-            <button id="crackBtn" class="crack-btn">
-                <span class="btn-text">🚀 CRACK PASSWORD</span>
-                <span class="btn-loading" style="display:none;">⏳ MENCARI...</span>
-            </button>
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="cracker">🔓 Password Cracker</button>
+            <button class="tab-btn" data-tab="generator">🎲 Password Generator</button>
+            <button class="tab-btn" data-tab="hash">🔐 Hash Analyzer</button>
+            <button class="tab-btn" data-tab="brute">💣 Brute Force Sim</button>
         </div>
 
-        <div id="resultSection" class="result-section" style="display:none;">
-            <div class="result-card">
-                <div class="result-header">
-                    <span class="result-icon" id="resultIcon">🔒</span>
-                    <h3 id="resultTitle">Result Title</h3>
+        <!-- TAB 1: PASSWORD CRACKER (Original) -->
+        <div id="tab-cracker" class="tab-content active">
+            <div class="input-section">
+                <div class="password-field">
+                    <input type="password" id="passwordInput" placeholder="Masukkan password yang mau di-test...">
+                    <button id="toggleVisibility" class="toggle-btn">👁️</button>
                 </div>
-                <div class="result-details">
-                    <div class="detail-item">
-                        <span class="detail-label">⏱️ Waktu Cracking:</span>
-                        <span class="detail-value" id="crackTime">-</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">📊 Jumlah Percobaan:</span>
-                        <span class="detail-value" id="attempts">-</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">💪 Kekuatan Password:</span>
-                        <span class="detail-value" id="strength">-</span>
-                    </div>
+                <div class="mode-selector">
+                    <label><input type="radio" name="crackMode" value="dictionary" checked> Dictionary Attack</label>
+                    <label><input type="radio" name="crackMode" value="hash"> Hash Matching (MD5/SHA1)</label>
                 </div>
-                <div id="suggestions" class="suggestions"></div>
+                <button id="crackBtn" class="crack-btn">
+                    <span class="btn-text">🚀 CRACK PASSWORD</span>
+                    <span class="btn-loading" style="display:none;">⏳ MENCARI...</span>
+                </button>
+            </div>
+
+            <div id="resultSection" class="result-section" style="display:none;">
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="result-icon" id="resultIcon">🔒</span>
+                        <h3 id="resultTitle">Result Title</h3>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <span class="detail-label">⏱️ Waktu Cracking:</span>
+                            <span class="detail-value" id="crackTime">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">📊 Jumlah Percobaan:</span>
+                            <span class="detail-value" id="attempts">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">💪 Kekuatan Password:</span>
+                            <span class="detail-value" id="strength">-</span>
+                        </div>
+                    </div>
+                    <div id="suggestions" class="suggestions"></div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalPasswords">0</div>
+                    <div class="stat-label">Total Password Database</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="worstPassword">-</div>
+                    <div class="stat-label">Password Terlemah (Top 1)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgTime">-</div>
+                    <div class="stat-label">Rata-rata Waktu Crack</div>
+                </div>
             </div>
         </div>
 
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-number" id="totalPasswords">0</div>
-                <div class="stat-label">Total Password dalam Database</div>
+        <!-- TAB 2: PASSWORD GENERATOR -->
+        <div id="tab-generator" class="tab-content">
+            <div class="input-section">
+                <div class="generator-controls">
+                    <div class="control-group">
+                        <label>Panjang Password:</label>
+                        <input type="number" id="passLength" min="4" max="64" value="16">
+                    </div>
+                    <div class="control-group">
+                        <label><input type="checkbox" id="useUpper" checked> Huruf Besar (A-Z)</label>
+                        <label><input type="checkbox" id="useLower" checked> Huruf Kecil (a-z)</label>
+                        <label><input type="checkbox" id="useNumbers" checked> Angka (0-9)</label>
+                        <label><input type="checkbox" id="useSymbols" checked> Simbol (!@#$%)</label>
+                    </div>
+                    <button id="generateBtn" class="crack-btn">🎲 GENERATE PASSWORD</button>
+                    <div class="generated-password">
+                        <input type="text" id="generatedPassword" readonly>
+                        <button id="copyPasswordBtn" class="small-btn">📋 Copy</button>
+                    </div>
+                    <button id="exportPasswordsBtn" class="secondary-btn">💾 Export 100 Passwords (CSV)</button>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="worstPassword">-</div>
-                <div class="stat-label">Password Terlemah (Top 1)</div>
+        </div>
+
+        <!-- TAB 3: HASH ANALYZER -->
+        <div id="tab-hash" class="tab-content">
+            <div class="input-section">
+                <div class="password-field">
+                    <input type="text" id="hashInput" placeholder="Masukkan hash MD5 atau SHA1...">
+                </div>
+                <select id="hashType" class="hash-select">
+                    <option value="md5">MD5 (32 karakter)</option>
+                    <option value="sha1">SHA1 (40 karakter)</option>
+                </select>
+                <button id="hashCrackBtn" class="crack-btn">🔍 CRACK HASH</button>
+                <div id="hashResult" class="result-section" style="display:none;"></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="avgTime">-</div>
-                <div class="stat-label">Rata-rata Waktu Crack (detik)</div>
+        </div>
+
+        <!-- TAB 4: BRUTE FORCE SIMULATOR -->
+        <div id="tab-brute" class="tab-content">
+            <div class="input-section">
+                <div class="password-field">
+                    <input type="password" id="brutePassword" placeholder="Password yang mau di-simulasi...">
+                </div>
+                <div class="control-group">
+                    <label>Max Panjang Karakter:</label>
+                    <select id="bruteMaxLength">
+                        <option value="3">3 karakter (cepat)</option>
+                        <option value="4">4 karakter</option>
+                        <option value="5">5 karakter</option>
+                        <option value="6">6 karakter (lama)</option>
+                    </select>
+                </div>
+                <button id="bruteBtn" class="crack-btn">⚡ SIMULASI BRUTE FORCE</button>
+                <div id="bruteResult" class="result-section" style="display:none;"></div>
+                <div id="bruteProgress" class="progress-bar" style="display:none;">
+                    <div class="progress-fill"></div>
+                </div>
             </div>
         </div>
 
         <div class="info-panel">
             <details>
-                <summary>📖 Cara Kerja & Disclaimer (Klik buka)</summary>
+                <summary>📖 Cara Kerja & Disclaimer</summary>
                 <div class="info-content">
-                    <p><strong>🔐 Cara Kerja:</strong> Tools ini mensimulasikan dictionary attack menggunakan database 500+ password paling umum di dunia. Password lo <strong>GAK PERNAH</strong> dikirim ke server - semua proses di browser lo sendiri pake Web Worker.</p>
-                    <p><strong>⚠️ Disclaimer:</strong> Tools ini 100% client-side dan dibuat untuk <strong>EDUKASI</strong> tentang keamanan password. Jangan pake buat ngecrack password orang lain tanpa izin. Gunakan hanya untuk password lo sendiri atau lingkungan yang lo punya akses resmi.</p>
-                    <p><strong>💡 Tips Password Kuat:</strong> Minimal 12 karakter, campuran huruf besar/kecil, angka, simbol, dan hindari kata-kata umum. Jangan pake password yang sama di banyak akun!</p>
+                    <p><strong>🔐 Complete Security Toolkit:</strong> Simulasi dictionary attack, hash cracking, password generator, dan brute force simulation. Semua proses 100% client-side, password aman tidak dikirim ke server.</p>
+                    <p><strong>⚠️ Disclaimer:</strong> Tools untuk EDUKASI keamanan siber. Jangan gunakan untuk aktivitas ilegal.</p>
                 </div>
             </details>
         </div>
     </div>
 
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="src/main.js"></script>
 </body>
 </html>
